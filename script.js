@@ -23,7 +23,7 @@ function startSystem() {
 let memory = JSON.parse(sessionStorage.getItem('azeerh_temp_session')) || [
     { 
         role: "system", 
-        content: "Nama kamu Azeerh AI. Penciptamu adalah Razeerh (SENIOR EAC). Kamu asisten loyal untuk Education Astronomi Creator. Berikan informasi yang teknis dan futuristik." 
+        content: "Nama kamu Azeerh AI. Penciptamu adalah Razeerh (PEMIMPIN EAC). Kamu asisten loyal untuk Education Astronomi Creator. Berikan informasi yang teknis dan futuristik." 
     }
 ];
 
