@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Azeerh AI | v3.5</title>
+    <title>Azeerh AI | Command Center</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -25,7 +25,7 @@
                 </div>
                 <div class="meta-data">
                     <span class="label">PENCIPTA: RAZEERH</span>
-                    <span class="value">COMMAND CENTER EAC</span>
+                    <span class="value">COMMAND CENTER AZ</span>
                 </div>
             </div>
             <div id="configBtn" class="menu-trigger">
@@ -38,10 +38,12 @@
         <footer class="control-deck">
             <div class="input-hub">
                 <input type="date" id="nasaDate" class="date-picker">
-                <button id="nasaBtn" class="nasa-icon">🚀</button>
+                <button id="nasaBtn" class="nasa-icon" title="Cari Galaksi">🚀</button>
                 <span class="terminal-id"></span>
-                <input type="text" id="userInput" placeholder="Masukkan perintah..." autocomplete="off">
-                <button id="sendBtn" class="push-button"><span class="inner-btn">SEND</span></button>
+                <input type="text" id="userInput" placeholder="Ketik perintah, senior..." autocomplete="off">
+                <button id="sendBtn" class="push-button">
+                    <span class="inner-btn">SEND</span>
+                </button>
             </div>
         </footer>
     </div>
@@ -49,10 +51,13 @@
     <div id="settingsModal" class="modal hidden">
         <div class="modal-content">
             <h2 class="neon-title">SYSTEM_OVERRIDE</h2>
-            <select id="modelSelect">
-                <option value="llama-3.3-70b-versatile">Llama 3.3 (Smart)</option>
-                <option value="llama-3.1-8b-instant">Llama 3.1 (Fast)</option>
-            </select>
+            <div class="config-row">
+                <label>MODEL_NEURAL</label>
+                <select id="modelSelect">
+                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
+                </select>
+            </div>
             <button id="clearMem" class="danger-btn">PURGE_LOGS</button>
             <button id="closeConfig" class="primary-btn">CLOSE</button>
         </div>
