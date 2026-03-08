@@ -6,7 +6,7 @@ const configBtn = document.getElementById('configBtn');
 const settingsModal = document.getElementById('settingsModal');
 
 let memory = JSON.parse(localStorage.getItem('azeerh_eac_v1')) || [
-    { role: "system", content: "Kamu adalah Azeerh AI, asisten komandan EAC. Bicara tegas, futuristik, dan sangat cerdas." }
+    { role: "system", content: "Kamu adalah Azeerh AI, asisten senior Razeerh. Bicara tegas, futuristik, dan sangat cerdas." }
 ];
 
 function initStars() {
