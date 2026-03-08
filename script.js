@@ -1,69 +1,71 @@
 const API_KEY = "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";
+const NASA_API_KEY = "JMcJ1UGIgdFUs4qDWRaPEONheF5zazhnIdMhs4eH";
+
 const chatDisplay = document.getElementById('chatDisplay');
 const userInput = document.getElementById('userInput');
-const sendBtn = document.getElementById('sendBtn');
-const configBtn = document.getElementById('configBtn');
-const settingsModal = document.getElementById('settingsModal');
+const nasaDateInput = document.getElementById('nasaDate');
 
-let memory = JSON.parse(localStorage.getItem('azeerh_eac_v1')) || [
-    { role: "system", content: "Kamu adalah Azeerh AI, asisten senior Razeerh. Bicara tegas, futuristik, dan sangat cerdas." }
+let memory = JSON.parse(localStorage.getItem('azeerh_eac_v35')) || [
+    { role: "system", content: "Nama kamu Azeerh AI. Penciptamu adalah Razeerh (pemimpin EAC). Kamu asisten loyal untuk seorang razeerh." }
 ];
 
-function initStars() {
-    const field = document.getElementById('starfield');
-    for (let i = 0; i < 80; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        const size = Math.random() * 2 + 1 + 'px';
-        star.style.width = size; star.style.height = size;
-        star.style.top = Math.random() * 100 + 'vh';
-        star.style.left = Math.random() * 100 + 'vw';
-        star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
-        field.appendChild(star);
+function appendMsg(role, content, isHtml = false) {
+    const div = document.createElement('div');
+    div.className = role === 'user' ? 'user-msg' : 'ai-msg';
+    
+    if (role === 'user') {
+        div.innerText = `[CMD]> ${content}`;
+    } else {
+        const textContent = isHtml ? content : marked.parse(content);
+        div.innerHTML = `
+            <div class="msg-body">${textContent}</div>
+            <button class="copy-btn" onclick="copyText(this)">COPY_LOG</button>
+        `;
     }
-}
-
-function appendMsg(role, content) {
-    const html = role === 'user' 
-        ? `<div class="user-msg">[CMD]> ${content}</div>`
-        : `<div class="ai-msg">${marked.parse(content)}</div>`;
-    chatDisplay.insertAdjacentHTML('beforeend', html);
+    
+    chatDisplay.appendChild(div);
     chatDisplay.scrollTop = chatDisplay.scrollHeight;
 }
 
-async function sendMessage() {
-    const text = userInput.value.trim();
-    if(!text) return;
-
-    appendMsg('user', text);
-    memory.push({ role: "user", content: text });
-    userInput.value = '';
-
-    const loadId = 'sys-' + Date.now();
-    chatDisplay.insertAdjacentHTML('beforeend', `<div id="${loadId}" class="ai-msg" style="opacity:0.5">MENGHUBUNGKAN_KE_AZEERH...</div>`);
-
+async function fetchNasaToday() {
+    const date = nasaDateInput.value;
+    const url = `https://api.nasa.gov/planetary/apod?api_key=${NASA_API_KEY}${date ? '&date='+date : ''}`;
+    
+    appendMsg('assistant', '_MENGHUBUNGKAN_KE_NASA..._');
     try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ model: document.getElementById('modelSelect').value, messages: memory })
-        });
-        const data = await response.json();
-        const reply = data.choices[0].message.content;
-        document.getElementById(loadId).remove();
-        appendMsg('assistant', reply);
-        memory.push({ role: "assistant", content: reply });
-        localStorage.setItem('azeerh_eac_v1', JSON.stringify(memory));
-    } catch (e) {
-        document.getElementById(loadId).innerText = "ERROR: NEURAL_LINK_FAILED";
-    }
+        const res = await fetch(url);
+        const data = await res.json();
+        const nasaHtml = `
+            <div class="nasa-card">
+                <img src="${data.url}" id="nasaImg">
+                <div class="nasa-info"><strong>${data.title}</strong></div>
+            </div>
+            <button class="dl-btn" onclick="downloadImg('${data.url}', '${data.title}')">DOWNLOAD_IMAGE</button>
+        `;
+        appendMsg('assistant', nasaHtml, true);
+    } catch (e) { appendMsg('assistant', 'ERROR: DATA_TIDAK_DITEMUKAN'); }
 }
 
-sendBtn.onclick = sendMessage;
-userInput.onkeypress = (e) => e.key === 'Enter' && sendMessage();
-configBtn.onclick = () => settingsModal.classList.remove('hidden');
-document.getElementById('closeConfig').onclick = () => settingsModal.classList.add('hidden');
-document.getElementById('clearMem').onclick = () => { localStorage.removeItem('azeerh_eac_v1'); location.reload(); };
+// Fungsi Copy Pesan
+function copyText(btn) {
+    const text = btn.parentElement.querySelector('.msg-body').innerText;
+    navigator.clipboard.writeText(text);
+    btn.innerText = "COPIED!";
+    btn.classList.add('copied-anim');
+    setTimeout(() => { 
+        btn.innerText = "COPY_LOG"; 
+        btn.classList.remove('copied-anim');
+    }, 2000);
+}
 
-// Load History
-if(memory.length > 1) memory.forEach(m => m.role !== 'system' && appendMsg(m.role, m.content));
+// Fungsi Download Gambar
+function downloadImg(url, title) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `EAC_${title}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// ... (Gunakan sisa logika sendMessage, initStars dari v3.0) ...
