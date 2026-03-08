@@ -67,7 +67,7 @@ body {
 .user-msg { color: var(--neon-magenta); font-size: 12px; text-align: right; font-weight: bold; text-shadow: 0 0 8px var(--neon-magenta); }
 
 /* Control Deck (Naik di atas navigasi HP) */
-.control-deck { position: absolute; bottom: 45px; left: 0; width: 100%; padding: 0 15px; z-index: 20; }
+.control-deck { position: absolute; bottom: 60px; left: 0; width: 100%; padding: 0 15px; z-index: 20; }
 .input-hub { max-width: 600px; margin: 0 auto; display: flex; align-items: center; background: rgba(5, 5, 10, 0.8); backdrop-filter: blur(10px); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 5px 15px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); }
 .terminal-id { font-family: 'Orbitron'; font-size: 9px; color: var(--neon-magenta); }
 input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 14px; }
