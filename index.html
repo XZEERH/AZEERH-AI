@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azeerh AI | Neural Interface</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="main-header">
+            <div class="brand">
+                <div class="logo-box">AZ</div>
+                <div class="brand-info">
+                    <h1>AZEERH AI</h1>
+                    <span class="status"><span class="dot"></span> NEURAL LINK ACTIVE</span>
+                </div>
+            </div>
+            <button id="configBtn" class="glass-btn">SETTINGS</button>
+        </header>
+
+        <main id="chatDisplay" class="chat-area">
+            </main>
+
+        <footer class="input-panel">
+            <div class="input-container">
+                <span class="prefix">CMD></span>
+                <input type="text" id="userInput" placeholder="Tanyakan sesuatu pada Azeerh..." autocomplete="off">
+                <button id="sendBtn" class="send-icon">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                </button>
+            </div>
+        </footer >
+    </div>
+
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content glass">
+            <h2>CORE_SYSTEM</h2>
+            <div class="setting-item">
+                <label>Neural Model</label>
+                <select id="modelSelect">
+                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Smartest)</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B (Fastest)</option>
+                </select>
+            </div>
+            <button id="clearMem" class="danger-btn">WIPE ALL LOGS</button>
+            <button id="closeConfig" class="primary-btn">CLOSE</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
