@@ -40,8 +40,7 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan **Azeerh AI** di komputermu
 git clone https://github.com/USERNAME_GITHUB_KAMU/azeerh-ai.git
 cd azeerh-ai
 
-
-2. Install Dependencies
-Pastikan kamu sudah menginstal Node.js, lalu jalankan:
+### 2 Install Dependencies
+Pastikan kamu sudah menginstal Node.js, lalu jalankan
 ```Bash
 npm install
