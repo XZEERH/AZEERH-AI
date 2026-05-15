@@ -18,6 +18,7 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
   const [isListening, setIsListening] = useState(false);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll yang smooth ke bawah setiap ada pesan
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
@@ -67,10 +68,11 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
   };
 
   return (
-    <div className="flex-1 flex flex-col relative h-full bg-gray-50 dark:bg-zinc-950 transition-colors duration-300 overflow-hidden">
+    /* PERBAIKAN LAYOUT UTAMA: Menggunakan flex-col h-full agar rapi terbagi 3 bagian */
+    <div className="flex flex-col h-full w-full bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
       
-      {/* HEADER: Diubah menjadi flex-none agar diam di tempat dan menekan chat ke bawah, tidak melayang menutupi */}
-      <div className="flex-none z-10 flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-zinc-900 shadow-sm">
+      {/* BAGIAN 1: HEADER (Flex-none agar tinggi tetap dan tidak tumpang tindih) */}
+      <header className="flex-none flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-zinc-900 shadow-sm z-20">
         <div className="flex items-center">
           <button onClick={setSidebarOpen} className="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
             <Menu className="w-6 h-6" />
@@ -84,10 +86,10 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
         >
           {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
-      </div>
+      </header>
 
-      {/* AREA CHAT: Ditambahkan pt-6 (Padding Top) agar pesan pertama punya jarak napas dari atas */}
-      <div className="flex-1 overflow-y-auto p-4 pt-6 md:p-8 md:pt-8 scroll-smooth pb-40 custom-scrollbar">
+      {/* BAGIAN 2: AREA CHAT (Flex-1 agar mengisi sisa ruang tengah, otomatis scroll di sini) */}
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth custom-scrollbar">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center">
             <motion.div
@@ -110,9 +112,8 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
             </motion.p>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div className="max-w-4xl mx-auto space-y-6">
             {messages.map((msg, idx) => (
-              /* ANIMASI KETIKA CHAT MUNCUL (Smooth Spring Effect) */
               <motion.div 
                 key={idx} 
                 initial={{ opacity: 0, y: 20 }}
@@ -123,7 +124,7 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
                 <div className={`max-w-[90%] md:max-w-[80%] rounded-3xl px-6 py-4 shadow-sm ${
                   msg.role === "user" 
                     ? "bg-gray-200 dark:bg-zinc-800 text-gray-900 dark:text-white rounded-tr-sm" 
-                    : "bg-white dark:bg-transparent text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-white/10 dark:shadow-[0_0_15px_rgba(0,243,255,0.02)] rounded-tl-sm"
+                    : "bg-white dark:bg-zinc-900 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-white/5 shadow-sm rounded-tl-sm"
                 }`}>
                   {msg.role === "assistant" && (
                     <div className="text-xs text-[#00f3ff] font-bold mb-3 tracking-widest flex items-center gap-2">
@@ -138,7 +139,7 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
                         components={{
                           code({node, inline, className, children, ...props}: any) {
                             return !inline ? (
-                              <div className="bg-gray-100 dark:bg-zinc-900 rounded-xl p-4 overflow-x-auto my-4 border border-gray-200 dark:border-white/10 font-mono text-sm shadow-inner">
+                              <div className="bg-gray-100 dark:bg-zinc-950/50 rounded-xl p-4 overflow-x-auto my-4 border border-gray-200 dark:border-white/10 font-mono text-sm shadow-inner">
                                 <code {...props} className={className}>{children}</code>
                               </div>
                             ) : (
@@ -157,27 +158,27 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
               </motion.div>
             ))}
             
-            {/* ANIMASI LOADING AI (Smooth Fade In) */}
             {isLoading && (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex justify-start"
               >
-                <div className="bg-white dark:bg-transparent border border-gray-100 dark:border-white/10 px-6 py-4 rounded-3xl rounded-tl-sm flex gap-2 items-center h-12 shadow-sm">
+                <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-white/5 px-6 py-4 rounded-3xl rounded-tl-sm flex gap-2 items-center h-12 shadow-sm">
                   <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 bg-[#00f3ff] rounded-full"></motion.div>
                   <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-[#00f3ff] rounded-full"></motion.div>
                   <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-[#00f3ff] rounded-full"></motion.div>
                 </div>
               </motion.div>
             )}
-            <div ref={endOfMessagesRef} />
+            {/* Pembatas bawah agar auto-scroll tidak mentok banget */}
+            <div ref={endOfMessagesRef} className="h-4" />
           </div>
         )}
-      </div>
+      </main>
 
-      {/* INPUT AREA */}
-      <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-gray-50 via-gray-50 dark:from-zinc-950 dark:via-zinc-950 to-transparent pt-12 pb-6 px-4 md:px-8">
+      {/* BAGIAN 3: KOTAK INPUT BAWAH (Flex-none agar diam di tempat paling bawah) */}
+      <footer className="flex-none p-4 md:p-6 bg-gray-50 dark:bg-zinc-950 border-t border-transparent">
         <div className="max-w-4xl mx-auto">
           <div className="relative flex items-end gap-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 p-2.5 rounded-3xl shadow-xl focus-within:border-gray-400 dark:focus-within:border-[#00f3ff]/50 transition-colors">
             
@@ -213,11 +214,11 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
               <Send className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </button>
           </div>
-          <p className="text-center text-[10px] md:text-xs text-gray-400 dark:text-gray-500 mt-4 tracking-wide font-medium">
+          <p className="text-center text-[10px] md:text-xs text-gray-400 dark:text-gray-500 mt-3 tracking-wide font-medium">
             Azeerh AI dapat membuat kesalahan. Harap periksa informasi penting.
           </p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
