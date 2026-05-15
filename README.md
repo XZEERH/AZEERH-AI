@@ -1,4 +1,4 @@
-# 🌌 Azeerh AI V2
+# 🤖 Azeerh AI V2
 
 **Azeerh AI V2** adalah asisten kecerdasan buatan (AI) generasi masa depan yang dirancang dengan antarmuka (UI) bernuansa *Command Center* yang modern, elegan, dan super responsif. Ditenagai oleh **Groq API (Llama-3)**, AI ini mampu memberikan jawaban sangat cepat, menulis kode pemograman, dan mendukung interaksi suara (Speech-to-Text).
 
@@ -30,3 +30,10 @@ Dibuat oleh **Razeerh**.
 - **AI Model:** [Groq Cloud](https://console.groq.com/) (Llama-3 70B & 8B)
 
 ---
+
+🛡️ Disclaimer
+Azeerh AI dapat membuat kesalahan dalam menjawab. Harap periksa kembali informasi penting sebelum menggunakannya. Fitur upload gambar saat ini sedang dalam tahap pengembangan.
+
+---
+
+© 2024 Azeerh AI V2. Dikembangkan oleh Razeerh.
