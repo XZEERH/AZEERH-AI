@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ error: "API Key tidak ditemukan di Environment" }, { status: 500 });
+      return NextResponse.json({ error: "API Key Groq tidak ditemukan di Environment Vercel." }, { status: 500 });
     }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         messages: [
           { 
             role: "system", 
-            content: "Nama kamu Azeerh AI. Penciptamu adalah Razeerh. Kamu asisten AI canggih dan modern. Jawab pertanyaan pengguna dengan akurat, termasuk menulis kode (coding) untuk website jika diminta. Format jawabanmu menggunakan Markdown." 
+            content: "Nama kamu Azeerh AI. Penciptamu adalah Razeerh. Kamu asisten AI canggih, profesional, dan modern. Jawab pertanyaan dengan akurat. Format jawaban menggunakan Markdown." 
           },
           ...messages
         ],
@@ -29,8 +29,14 @@ export async function POST(req: Request) {
     });
 
     const data = await response.json();
+
+    // JIKA API GROQ MENOLAK (Misal key salah atau model salah)
+    if (!response.ok) {
+      return NextResponse.json({ error: data.error?.message || "Ditolak oleh Server Groq." }, { status: response.status });
+    }
+
     return NextResponse.json(data);
-  } catch (error) {
-    return NextResponse.json({ error: "Gagal terhubung ke Neural Network" }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Gagal terhubung ke Jaringan Neural." }, { status: 500 });
   }
 }
