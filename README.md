@@ -42,6 +42,46 @@ cd azeerh-ai
 
 ---
 
-### 2.. Install Dependencies
-```bash
+ 2. Install Dependencies
+Pastikan kamu sudah menginstal Node.js, lalu jalankan:
+code
+Bash
 npm install
+
+---
+
+3. Setup Environment Variables
+Buat sebuah file baru bernama .env di dalam folder utama project.
+Dapatkan API Key secara gratis di Groq Console.
+Tambahkan API Key kamu ke dalam file .env dengan format berikut:
+```bash
+Env
+GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+(Catatan: Jangan pernah mempublikasikan file .env kamu ke GitHub!)
+
+---
+
+4. Jalankan Server
+```Bash
+npm run dev
+Aplikasi akan berjalan di http://localhost:3000.
+
+---
+
+🌐 Cara Deployment (Vercel)
+Aplikasi ini sudah dioptimasi 100% untuk di-deploy ke Vercel.
+
+Buat akun / login ke Vercel.
+Klik Add New Project dan import repository GitHub ini.
+
+Di bagian Framework Preset, pastikan memilih Next.js.
+
+Buka menu Environment Variables, tambahkan:
+Name: GROQ_API_KEY
+Value: (Isi dengan API Key dari Groq)
+Klik Deploy dan tunggu prosesnya selesai.
+
+🛡️ Disclaimer
+Azeerh AI dapat membuat kesalahan dalam menjawab. Harap periksa kembali informasi penting sebelum menggunakannya. Fitur upload gambar saat ini sedang dalam tahap pengembangan.
+
+© 2024 Azeerh AI V2. Dikembangkan oleh Razeerh.
