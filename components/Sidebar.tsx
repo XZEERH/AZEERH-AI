@@ -48,9 +48,9 @@ export default function Sidebar({ isOpen, setIsOpen, currentModel, setCurrentMod
               onChange={(e) => setCurrentModel(e.target.value)}
               className="w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-white/10 text-sm text-gray-800 dark:text-white rounded-xl p-3 outline-none focus:border-[#00f3ff] transition cursor-pointer appearance-none shadow-sm"
             >
-              <option value="llama3-70b-8192">Llama 3 70B (Max Power)</option>
-              <option value="llama3-8b-8192">Llama 3 8B (Fast Speed)</option>
-              <option value="mixtral-8x7b-32768">Mixtral 8x7B (Balanced)</option>
+              {/* UPDATE LIST MODEL YANG BENAR */}
+              <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Max Power)</option>
+              <option value="llama-3.1-8b-instant">Llama 3.1 8B (Fast Speed)</option>
             </select>
           </div>
           
