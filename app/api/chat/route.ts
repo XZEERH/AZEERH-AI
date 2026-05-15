@@ -16,7 +16,8 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: model || "llama3-70b-8192",
+        // UPDATE MODEL TERBARU GROQ DI SINI
+        model: model || "llama-3.3-70b-versatile",
         messages: [
           { 
             role: "system", 
@@ -30,7 +31,6 @@ export async function POST(req: Request) {
 
     const data = await response.json();
 
-    // JIKA API GROQ MENOLAK (Misal key salah atau model salah)
     if (!response.ok) {
       return NextResponse.json({ error: data.error?.message || "Ditolak oleh Server Groq." }, { status: response.status });
     }
