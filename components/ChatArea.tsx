@@ -33,7 +33,6 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
     toast.error("Mohon maaf, upload gambar blom tersedia saat ini!");
   };
 
-  // FITUR MIKROFON (SPEECH TO TEXT)
   const handleMicClick = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -42,7 +41,7 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'id-ID'; // Bahasa Indonesia
+    recognition.lang = 'id-ID';
     recognition.interimResults = false;
 
     recognition.onstart = () => {
@@ -68,10 +67,10 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
   };
 
   return (
-    <div className="flex-1 flex flex-col relative h-full bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
+    <div className="flex-1 flex flex-col relative h-full bg-gray-50 dark:bg-zinc-950 transition-colors duration-300 overflow-hidden">
       
-      {/* HEADER MOBILE & DESKTOP (STICKY AGAR TIDAK HILANG) */}
-      <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+      {/* HEADER: Diubah menjadi flex-none agar diam di tempat dan menekan chat ke bawah, tidak melayang menutupi */}
+      <div className="flex-none z-10 flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-zinc-900 shadow-sm">
         <div className="flex items-center">
           <button onClick={setSidebarOpen} className="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
             <Menu className="w-6 h-6" />
@@ -79,7 +78,6 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
           <span className="ml-4 font-bold text-gray-800 dark:text-white tracking-widest text-sm md:hidden">AZEERH AI</span>
         </div>
         
-        {/* TOMBOL MODE TERANG / GELAP */}
         <button 
           onClick={toggleTheme}
           className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 transition-all"
@@ -88,7 +86,8 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth pb-40 custom-scrollbar">
+      {/* AREA CHAT: Ditambahkan pt-6 (Padding Top) agar pesan pertama punya jarak napas dari atas */}
+      <div className="flex-1 overflow-y-auto p-4 pt-6 md:p-8 md:pt-8 scroll-smooth pb-40 custom-scrollbar">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center">
             <motion.div
@@ -113,7 +112,14 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
         ) : (
           <div className="max-w-4xl mx-auto space-y-8">
             {messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              /* ANIMASI KETIKA CHAT MUNCUL (Smooth Spring Effect) */
+              <motion.div 
+                key={idx} 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
                 <div className={`max-w-[90%] md:max-w-[80%] rounded-3xl px-6 py-4 shadow-sm ${
                   msg.role === "user" 
                     ? "bg-gray-200 dark:bg-zinc-800 text-gray-900 dark:text-white rounded-tr-sm" 
@@ -148,24 +154,29 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
             
+            {/* ANIMASI LOADING AI (Smooth Fade In) */}
             {isLoading && (
-              <div className="flex justify-start">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-start"
+              >
                 <div className="bg-white dark:bg-transparent border border-gray-100 dark:border-white/10 px-6 py-4 rounded-3xl rounded-tl-sm flex gap-2 items-center h-12 shadow-sm">
                   <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 bg-[#00f3ff] rounded-full"></motion.div>
                   <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-[#00f3ff] rounded-full"></motion.div>
                   <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-[#00f3ff] rounded-full"></motion.div>
                 </div>
-              </div>
+              </motion.div>
             )}
             <div ref={endOfMessagesRef} />
           </div>
         )}
       </div>
 
-      {/* INPUT BAWAH */}
+      {/* INPUT AREA */}
       <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-gray-50 via-gray-50 dark:from-zinc-950 dark:via-zinc-950 to-transparent pt-12 pb-6 px-4 md:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="relative flex items-end gap-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 p-2.5 rounded-3xl shadow-xl focus-within:border-gray-400 dark:focus-within:border-[#00f3ff]/50 transition-colors">
