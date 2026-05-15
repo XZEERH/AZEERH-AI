@@ -1,4 +1,4 @@
-# Azeerh AI - Command Center v2.0
+# Azeerh AI - V2
 
 Web aplikasi AI modern yang dibangun dengan Next.js, TypeScript, dan Tailwind CSS. Menggunakan Groq API (Llama-3) untuk pemrosesan neural yang super cepat.
 
