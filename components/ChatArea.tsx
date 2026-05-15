@@ -82,7 +82,7 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
               <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#00f3ff] to-[#ff00ff] tracking-widest drop-shadow-[0_0_15px_rgba(0,243,255,0.2)] mb-4 select-none">AZEERH</h1>
             </motion.div>
             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5 }} className="text-gray-500 dark:text-gray-400 text-sm md:text-base tracking-widest text-center mt-6 font-medium">
-              System Online • Apa yang Bisa Saya Bantu Hari Ini? 
+              System Online • Ada Yang Bisa Saya Bantu? 
             </motion.p>
           </div>
         ) : (
