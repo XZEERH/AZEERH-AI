@@ -40,9 +40,24 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan **Azeerh AI** di komputermu
 git clone https://github.com/USERNAME_GITHUB_KAMU/azeerh-ai.git
 cd azeerh-ai
 
+---
+
 # 2. Install Dependencies
 
 Pastikan kamu sudah menginstal Node.js, lalu jalankan:
 
 ```bash
 npm install
+
+---
+
+# 3. Setup Environment Variables
+Buat sebuah file baru bernama .env di dalam folder utama project.
+
+Dapatkan API Key secara gratis di Groq Console.
+Tambahkan API Key kamu ke dalam file .env dengan format berikut:
+
+```Bash
+GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Catatan: Jangan pernah mempublikasikan file .env kamu ke GitHub!
