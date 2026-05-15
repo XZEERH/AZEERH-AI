@@ -1,18 +1,41 @@
-# Azeerh AI - V2
+# 🌌 Azeerh AI V2
 
-Web aplikasi AI modern yang dibangun dengan Next.js, TypeScript, dan Tailwind CSS. Menggunakan Groq API (Llama-3) untuk pemrosesan neural yang super cepat.
+**Azeerh AI V2** adalah asisten kecerdasan buatan (AI) generasi masa depan yang dirancang dengan antarmuka (UI) bernuansa *Command Center* yang modern, elegan, dan super responsif. Ditenagai oleh **Groq API (Llama-3)**, AI ini mampu memberikan jawaban sangat cepat, menulis kode pemograman, dan mendukung interaksi suara (Speech-to-Text).
 
-## 🚀 Tech Stack
-- **Framework:** Next.js (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **Animations:** Framer Motion
-- **Icons:** Lucide React
-- **Notifications:** Sonner
+Dibuat oleh **Razeerh**.
 
-## 🛠️ Cara Install & Menjalankan Project
+---
 
-1. **Clone repository ini**
-   ```bash
-   git clone <repo-url>
-   cd azeerh-ai
+## ✨ Fitur Utama
+
+- ⚡ **Super Fast Response:** Ditenagai oleh *Neural Network* dari Groq API.
+- 💾 **Multi-Session Local Storage:** Riwayat chat tersimpan secara lokal dan aman di perangkat masing-masing pengguna.
+- 📝 **Manajemen Percakapan:** Buat obrolan baru, ganti nama (Rename), atau hapus (Delete) riwayat chat kapan saja.
+- 🎤 **Speech-to-Text:** Dilengkapi fitur mikrofon cerdas untuk mendikte pesan langsung menggunakan suara.
+- 🌗 **Dark / Light Mode:** Tema yang bisa diubah secara dinamis dan memanjakan mata.
+- 🎨 **Modern Animations:** Transisi *smooth* dan animasi *bouncing* menggunakan Framer Motion.
+- 📋 **Interaksi AI Lengkap:** Tombol *Copy* jawaban ke clipboard, serta tombol *Like* & *Dislike* beserta notifikasi interaktif.
+- 💻 **Markdown & Code Highlighting:** Menampilkan format teks yang rapi, terutama saat AI memberikan jawaban berupa blok kode.
+
+---
+
+## 🛠️ Teknologi yang Digunakan
+
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router)
+- **Bahasa:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Animasi:** [Framer Motion](https://www.framer.com/motion/)
+- **Ikon:** [Lucide React](https://lucide.dev/)
+- **Notifikasi:** [Sonner](https://sonner.emilkowal.ski/)
+- **AI Model:** [Groq Cloud](https://console.groq.com/) (Llama-3 70B & 8B)
+
+---
+
+## 🚀 Cara Menjalankan Project (Local Development)
+
+Ikuti langkah-langkah di bawah ini untuk menjalankan **Azeerh AI** di komputermu sendiri:
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/USERNAME_GITHUB_KAMU/azeerh-ai.git
+cd azeerh-ai
