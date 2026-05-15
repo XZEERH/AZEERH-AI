@@ -18,7 +18,6 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
   const [isListening, setIsListening] = useState(false);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll yang smooth ke bawah setiap ada pesan
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
@@ -68,11 +67,11 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
   };
 
   return (
-    /* PERBAIKAN LAYOUT UTAMA: Menggunakan flex-col h-full agar rapi terbagi 3 bagian */
-    <div className="flex flex-col h-full w-full bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
+    // STRUKTUR TERBARU: relative dan overflow-hidden agar seluruh chat terkurung dengan aman
+    <div className="flex flex-col h-full w-full relative overflow-hidden bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
       
-      {/* BAGIAN 1: HEADER (Flex-none agar tinggi tetap dan tidak tumpang tindih) */}
-      <header className="flex-none flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-zinc-900 shadow-sm z-20">
+      {/* HEADER: shrink-0 (anti penyok) */}
+      <header className="flex-none shrink-0 flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-zinc-900 shadow-sm z-20">
         <div className="flex items-center">
           <button onClick={setSidebarOpen} className="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
             <Menu className="w-6 h-6" />
@@ -88,10 +87,10 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
         </button>
       </header>
 
-      {/* BAGIAN 2: AREA CHAT (Flex-1 agar mengisi sisa ruang tengah, otomatis scroll di sini) */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth custom-scrollbar">
+      {/* AREA CHAT: Tempat dimana scrolling murni terjadi di dalam box, bukan meluap keluar */}
+      <main className="flex-1 overflow-y-auto p-4 pt-6 md:p-8 scroll-smooth custom-scrollbar z-0 relative">
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center">
+          <div className="h-full flex flex-col items-center justify-center min-h-full">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }} 
               animate={{ opacity: 1, scale: 1 }} 
@@ -171,14 +170,14 @@ export default function ChatArea({ messages, sendMessage, isLoading, setSidebarO
                 </div>
               </motion.div>
             )}
-            {/* Pembatas bawah agar auto-scroll tidak mentok banget */}
-            <div ref={endOfMessagesRef} className="h-4" />
+            {/* Pembatas bawah agar saat auto-scroll masih punya jarak ekstra */}
+            <div ref={endOfMessagesRef} className="h-6" />
           </div>
         )}
       </main>
 
-      {/* BAGIAN 3: KOTAK INPUT BAWAH (Flex-none agar diam di tempat paling bawah) */}
-      <footer className="flex-none p-4 md:p-6 bg-gray-50 dark:bg-zinc-950 border-t border-transparent">
+      {/* FOOTER: shrink-0 (anti penyok) tempat form input berada */}
+      <footer className="flex-none shrink-0 p-4 md:p-6 bg-gray-50 dark:bg-zinc-950 border-t border-transparent z-20">
         <div className="max-w-4xl mx-auto">
           <div className="relative flex items-end gap-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 p-2.5 rounded-3xl shadow-xl focus-within:border-gray-400 dark:focus-within:border-[#00f3ff]/50 transition-colors">
             
