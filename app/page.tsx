@@ -5,19 +5,28 @@ import Sidebar from "@/components/Sidebar";
 import ChatArea from "@/components/ChatArea";
 
 export type Message = { role: "user" | "assistant"; content: string };
+export type ChatSession = { id: string; title: string; messages: Message[]; updatedAt: number };
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  // UPDATE: Menggunakan model Llama 3.3 terbaru yang aktif di Groq
   const [currentModel, setCurrentModel] = useState("llama-3.3-70b-versatile");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
 
+  // LOAD SESSIONS & TEMA DARI PENYIMPANAN
   useEffect(() => {
-    const savedChat = localStorage.getItem("azeerh_chat_history");
+    const savedSessions = localStorage.getItem("azeerh_sessions");
     const savedTheme = localStorage.getItem("azeerh_theme");
-    if (savedChat) setMessages(JSON.parse(savedChat));
+    
+    if (savedSessions) {
+      const parsed = JSON.parse(savedSessions);
+      setSessions(parsed);
+      // Opsional: Buka chat terakhir jika ada
+      if (parsed.length > 0) setCurrentSessionId(parsed[0].id);
+    }
+    
     if (savedTheme) {
       setTheme(savedTheme);
       if (savedTheme === "dark") document.documentElement.classList.add("dark");
@@ -27,9 +36,10 @@ export default function Home() {
     }
   }, []);
 
+  // SIMPAN SESSIONS OTOMATIS
   useEffect(() => {
-    localStorage.setItem("azeerh_chat_history", JSON.stringify(messages));
-  }, [messages]);
+    localStorage.setItem("azeerh_sessions", JSON.stringify(sessions));
+  }, [sessions]);
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
@@ -39,55 +49,102 @@ export default function Home() {
     else document.documentElement.classList.remove("dark");
   };
 
+  const createNewChat = () => {
+    setCurrentSessionId(null);
+    setIsSidebarOpen(false);
+  };
+
+  const deleteSession = (id: string) => {
+    const updated = sessions.filter(s => s.id !== id);
+    setSessions(updated);
+    if (currentSessionId === id) setCurrentSessionId(null);
+  };
+
+  const renameSession = (id: string, newTitle: string) => {
+    setSessions(sessions.map(s => s.id === id ? { ...s, title: newTitle } : s));
+  };
+
   const sendMessage = async (input: string) => {
     if (!input.trim()) return;
 
-    const newMessages = [...messages, { role: "user" as const, content: input }];
-    setMessages(newMessages);
+    let targetSessionId = currentSessionId;
+    let currentSessions = [...sessions];
+
+    // JIKA CHAT BARU, BUAT SESI BARU
+    if (!targetSessionId) {
+      targetSessionId = Date.now().toString();
+      const newTitle = input.length > 25 ? input.substring(0, 25) + "..." : input;
+      const newSession: ChatSession = { id: targetSessionId, title: newTitle, messages: [], updatedAt: Date.now() };
+      currentSessions = [newSession, ...currentSessions];
+      setCurrentSessionId(targetSessionId);
+    }
+
+    // TAMBAH PESAN USER KE SESI YANG TEPAT
+    const newMessage = { role: "user" as const, content: input };
+    currentSessions = currentSessions.map(s => 
+      s.id === targetSessionId ? { ...s, messages: [...s.messages, newMessage], updatedAt: Date.now() } : s
+    );
+    setSessions(currentSessions);
     setIsLoading(true);
+
+    // MENGAMBIL RIWAYAT CHAT DARI SESI TERSEBUT UNTUK DIKIRIM KE API
+    const activeSession = currentSessions.find(s => s.id === targetSessionId);
+    const messagesToSend = activeSession ? activeSession.messages : [newMessage];
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages, model: currentModel }),
+        body: JSON.stringify({ messages: messagesToSend, model: currentModel }),
       });
 
       const data = await res.json();
       
-      if (!res.ok) {
-        throw new Error(data.error || "Gagal menyambung ke server API Groq.");
-      }
+      if (!res.ok) throw new Error(data.error || "Gagal menyambung ke server API Groq.");
+      if (!data.choices || !data.choices[0]) throw new Error("Respon API tidak valid");
 
-      if (data.choices && data.choices[0]) {
-        setMessages([...newMessages, { role: "assistant", content: data.choices[0].message.content }]);
-      } else {
-        throw new Error("Respon API tidak valid");
-      }
+      const reply = data.choices[0].message.content;
+
+      // TAMBAH PESAN AI KE SESI YANG TEPAT
+      setSessions(prev => prev.map(s => 
+        s.id === targetSessionId ? { ...s, messages: [...s.messages, { role: "assistant", content: reply }], updatedAt: Date.now() } : s
+      ));
+
     } catch (error: any) {
-      setMessages([...newMessages, { role: "assistant", content: `⚠️ **SYSTEM ERROR:** ${error.message}` }]);
+      setSessions(prev => prev.map(s => 
+        s.id === targetSessionId ? { ...s, messages: [...s.messages, { role: "assistant", content: `⚠️ **SYSTEM ERROR:** ${error.message}` }], updatedAt: Date.now() } : s
+      ));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const clearChat = () => {
-    setMessages([]);
-    localStorage.removeItem("azeerh_chat_history");
+  const clearAllChats = () => {
+    setSessions([]);
+    setCurrentSessionId(null);
+    localStorage.removeItem("azeerh_sessions");
   };
 
+  const currentSession = sessions.find(s => s.id === currentSessionId);
+
   return (
-    // UPDATE PENTING: Pakai h-[100dvh] dan overflow-hidden agar web nge-lock 100% dan header tidak lari
     <main className="flex h-[100dvh] w-full overflow-hidden bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
       <Sidebar 
         isOpen={isSidebarOpen} 
         setIsOpen={setIsSidebarOpen}
+        sessions={sessions}
+        currentSessionId={currentSessionId}
+        setCurrentSessionId={setCurrentSessionId}
+        createNewChat={createNewChat}
+        deleteSession={deleteSession}
+        renameSession={renameSession}
         currentModel={currentModel}
         setCurrentModel={setCurrentModel}
-        clearChat={clearChat}
+        clearAllChats={clearAllChats}
       />
       <ChatArea 
-        messages={messages} 
+        currentSessionTitle={currentSession?.title}
+        messages={currentSession?.messages || []} 
         sendMessage={sendMessage} 
         isLoading={isLoading} 
         setSidebarOpen={() => setIsSidebarOpen(true)}
