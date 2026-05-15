@@ -50,7 +50,7 @@ export default function Sidebar({
         <div className="p-5 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
           <div className="flex items-center gap-2 text-gray-800 dark:text-white font-bold tracking-wider">
             <Zap className="w-5 h-5 text-[#00f3ff]" />
-            <span>COMMAND CENTER</span>
+            <span>Pusat Riwayat Pesan</span>
           </div>
           <button onClick={() => setIsOpen(false)} className="md:hidden text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition">
             <X className="w-5 h-5" />
@@ -125,7 +125,7 @@ export default function Sidebar({
         <div className="p-5 border-t border-gray-100 dark:border-white/5 space-y-4 bg-gray-50 dark:bg-zinc-950/50">
           <div>
             <label className="text-xs text-gray-500 font-semibold mb-2 flex items-center gap-2 tracking-wide">
-              <Settings className="w-3 h-3" /> MODEL NEURAL
+              <Settings className="w-3 h-3" /> MODEL AI
             </label>
             <select 
               value={currentModel} 
