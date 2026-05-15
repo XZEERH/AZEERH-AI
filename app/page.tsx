@@ -9,11 +9,11 @@ export type Message = { role: "user" | "assistant"; content: string };
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentModel, setCurrentModel] = useState("llama3-70b-8192");
+  // UPDATE: Menggunakan model Llama 3.3 terbaru yang aktif di Groq
+  const [currentModel, setCurrentModel] = useState("llama-3.3-70b-versatile");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState("dark"); // STATE MODE TERANG/GELAP
+  const [theme, setTheme] = useState("dark");
 
-  // LOAD RIWAYAT CHAT & TEMA DARI PENYIMPANAN BROWSER MASING-MASING PENGGUNA
   useEffect(() => {
     const savedChat = localStorage.getItem("azeerh_chat_history");
     const savedTheme = localStorage.getItem("azeerh_theme");
@@ -27,7 +27,6 @@ export default function Home() {
     }
   }, []);
 
-  // SIMPAN RIWAYAT CHAT OTOMATIS SETIAP ADA PESAN BARU
   useEffect(() => {
     localStorage.setItem("azeerh_chat_history", JSON.stringify(messages));
   }, [messages]);
@@ -78,7 +77,8 @@ export default function Home() {
   };
 
   return (
-    <main className="flex h-screen w-full bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
+    // UPDATE PENTING: Pakai h-[100dvh] dan overflow-hidden agar web nge-lock 100% dan header tidak lari
+    <main className="flex h-[100dvh] w-full overflow-hidden bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
       <Sidebar 
         isOpen={isSidebarOpen} 
         setIsOpen={setIsSidebarOpen}
