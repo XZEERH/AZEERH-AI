@@ -42,7 +42,7 @@ cd azeerh-ai
 
 ---
 
-2. Install Dependencies
+# 2. Install Dependencies
 Pastikan kamu sudah menginstal Node.js, lalu jalankan
 ```Bash
 npm install
