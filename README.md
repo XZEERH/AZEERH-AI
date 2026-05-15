@@ -36,4 +36,4 @@ Azeerh AI dapat membuat kesalahan dalam menjawab. Harap periksa kembali informas
 
 ---
 
-© 2024 Azeerh AI V2. Dikembangkan oleh Razeerh.
+_© 2025 Azeerh AI V2. Dikembangkan oleh Razeerh._
