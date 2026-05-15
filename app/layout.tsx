@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Azeerh AI | Command Center",
+  title: "Azeerh AI V2",
   description: "Next-Gen AI Assistant by Razeerh",
 };
 
