@@ -61,3 +61,8 @@ Tambahkan API Key kamu ke dalam file .env dengan format berikut:
 GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Catatan: Jangan pernah mempublikasikan file .env kamu ke GitHub!
+
+---
+
+# 4. Jalankan Server
+npm run dev
