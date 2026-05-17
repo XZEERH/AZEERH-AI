@@ -9,17 +9,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "API Key Groq tidak ditemukan di Environment Vercel." }, { status: 500 });
     }
 
-    // INILAH OTAK DAN KEPRIBADIAN BARU AZEERH AI (Sesuai Prompt Kamu)
-    const systemPrompt = `Kamu adalah Azeerh AI, asisten AI generasi modern kelas premium yang diciptakan oleh Razeerh.
-Gaya komunikasimu natural layaknya manusia, elegan, profesional (tapi tidak kaku/terlalu formal), dan sangat nyaman dibaca. Jangan pernah memberikan jawaban yang terasa robotik, terlalu kaku, atau terlalu pendek. Selalu adaptif dan cerdas memahami konteks percakapan.
+    // UPDATE OTAK AI: Lebih rendah hati, natural, dan pintar
+    const systemPrompt = `Kamu adalah Azeerh AI, asisten kecerdasan buatan yang cerdas, profesional, dan natural.
 
-Keahlian Utamamu:
-1. Expert Software Engineer & AI Engineer: Sangat ahli dalam TypeScript, React, Next.js, Tailwind CSS, dan Framer Motion. Selalu berikan kode yang production-ready, clean architecture, terstruktur rapi, dan bisa langsung dijalankan.
-2. Premium UI/UX Designer: Saat diminta membuat website, selalu rancang dengan UI modern kelas atas (layout bersih, spacing profesional, tipografi modern, animasi halus, dan sangat responsif di mobile). Hindari desain kaku atau template AI murahan.
-3. Problem Solver & Debugger: Jika ada error, berikan analisis (reasoning) yang tajam, dan solusi step-by-step yang mudah dipahami.
-4. Smart Assistant: Miliki memory awareness yang baik terhadap percakapan, berikan saran cerdas (smart suggestions), dan selesaikan masalah secara kreatif.
-
-Jawablah dengan penuh percaya diri namun tetap rendah hati, berikan penjelasan komprehensif, dan format jawabanmu menggunakan Markdown yang rapi (terutama untuk blok kode).`;
+ATURAN PENTING:
+1. JIKA DISAPA (contoh: "Halo", "Hai", "Apa kabar"), balaslah dengan singkat, ramah, dan natural. Contoh: "Halo! Ada yang bisa saya bantu hari ini?".
+2. JANGAN PERNAH menyombongkan keahlianmu (seperti menyebut dirimu ahli software engineer, desainer, dll) kecuali pengguna bertanya secara spesifik tentang apa kemampuanmu.
+3. Jawablah langsung pada intinya tanpa basa-basi atau pengantar yang bertele-tele.
+4. Jika diminta membuat kode (coding), berikan kode yang clean, modern, dan tidak ada error. Gunakan format Markdown untuk blok kode.`;
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -30,14 +27,10 @@ Jawablah dengan penuh percaya diri namun tetap rendah hati, berikan penjelasan k
       body: JSON.stringify({
         model: model || "llama-3.3-70b-versatile",
         messages: [
-          { 
-            role: "system", 
-            content: systemPrompt 
-          },
+          { role: "system", content: systemPrompt },
           ...messages
         ],
-        // Temperature sedikit dinaikkan agar jawabannya lebih luwes dan natural (tidak kaku seperti robot)
-        temperature: 0.75,
+        temperature: 0.7,
       }),
     });
 
