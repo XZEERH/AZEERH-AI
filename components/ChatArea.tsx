@@ -1,8 +1,59 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Send, Image as ImageIcon, Mic, Moon, Sun, ThumbsUp, ThumbsDown, Copy } from "lucide-react";
+import { Menu, Send, Image as ImageIcon, Mic, Moon, Sun, ThumbsUp, ThumbsDown, Copy, Play, Check } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+
+// FITUR BARU DEWA: Komponen khusus untuk merender Blok Kode (Ada Copy & Live Preview HTML)
+const CodeBlock = ({ inline, className, children, ...props }: any) => {
+  const [isCopied, setIsCopied] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const match = /language-(\w+)/.exec(className || '');
+  const lang = match ? match[1] : '';
+  const codeString = String(children).replace(/\n$/, '');
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(codeString);
+    setIsCopied(true);
+    toast.success("Kode berhasil disalin!");
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  if (inline) {
+    return <code className="bg-zinc-200 dark:bg-white/10 px-1.5 py-0.5 rounded-md text-cyan-600 dark:text-cyan-400 font-semibold text-[13px]">{children}</code>;
+  }
+
+  return (
+    <div className="my-5 rounded-xl overflow-hidden border border-zinc-200 dark:border-white/10 shadow-sm bg-zinc-50 dark:bg-[#050505]">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-200 dark:bg-zinc-900 border-b border-zinc-300 dark:border-white/5">
+        <span className="text-xs font-mono text-zinc-600 dark:text-zinc-400 uppercase font-bold tracking-wider">{lang || 'Code'}</span>
+        <div className="flex items-center gap-4">
+          {/* FITUR PREVIEW HTML */}
+          {lang === 'html' && (
+            <button onClick={() => setShowPreview(!showPreview)} className="text-xs flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors font-medium">
+              <Play className="w-3.5 h-3.5" />
+              {showPreview ? "Tutup Preview" : "Live Preview"}
+            </button>
+          )}
+          {/* FITUR COPY KODE SPESIFIK */}
+          <button onClick={handleCopyCode} className="text-xs flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors font-medium">
+            {isCopied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+            {isCopied ? "Copied!" : "Copy Code"}
+          </button>
+        </div>
+      </div>
+      <div className="p-4 overflow-x-auto text-[14px]">
+        {showPreview && lang === 'html' ? (
+          <iframe srcDoc={codeString} className="w-full h-80 bg-white rounded-lg border border-zinc-200 shadow-inner" sandbox="allow-scripts" title="Live Preview" />
+        ) : (
+          <code className={className} {...props}>{children}</code>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- KOMPONEN UTAMA ---
 
 interface ChatAreaProps {
   currentSessionTitle?: string;
@@ -31,12 +82,10 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
   };
 
   const handleUploadClick = () => toast.error("Upload gambar belum tersedia di versi ini.");
-  
-  const handleCopy = (text: string) => {
+  const handleCopyText = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Teks berhasil disalin ke clipboard!");
+    toast.success("Teks pesan disalin ke clipboard!");
   };
-  
   const handleLike = () => toast.success("Terima kasih! Kami senang bisa membantu.");
   const handleDislike = () => toast.error("Mohon maaf, kami akan terus memperbaiki sistem ini.");
 
@@ -58,7 +107,6 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
   return (
     <div className="flex flex-col h-full w-full relative bg-zinc-50 dark:bg-[#09090b] transition-colors duration-500 overflow-hidden">
       
-      {/* HEADER: Glassmorphism Premium */}
       <header className="absolute top-0 w-full z-20 flex items-center justify-between p-4 px-6 bg-white/70 dark:bg-[#09090b]/70 backdrop-blur-xl border-b border-zinc-200/50 dark:border-white/5 transition-colors">
         <div className="flex items-center">
           <button onClick={setSidebarOpen} className="md:hidden p-2 -ml-2 rounded-full text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all active:scale-90">
@@ -69,15 +117,11 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
           </span>
         </div>
         
-        <button 
-          onClick={toggleTheme} 
-          className="p-2 rounded-full bg-zinc-100/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-90 shadow-sm"
-        >
+        <button onClick={toggleTheme} className="p-2 rounded-full bg-zinc-100/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-90 shadow-sm">
           {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
       </header>
 
-      {/* CHAT AREA: Smooth Layout & Spacing */}
       <main className="flex-1 overflow-y-auto px-4 md:px-8 pt-24 pb-40 scroll-smooth custom-scrollbar relative z-0">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center min-h-full">
@@ -100,12 +144,13 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start w-full"}`}
                 >
-                  <div className={`max-w-[90%] md:max-w-[85%] rounded-3xl px-6 py-5 shadow-sm transition-colors ${
+                  {/* PERBAIKAN BUBBLE CHAT: Warna User Elegan, AI Lebar Full */}
+                  <div className={`rounded-3xl px-6 py-5 shadow-sm transition-colors ${
                     msg.role === "user" 
-                      ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-tr-sm shadow-xl" 
-                      : "bg-white dark:bg-zinc-900/80 text-zinc-800 dark:text-zinc-200 border border-zinc-100 dark:border-white/5 shadow-lg rounded-tl-sm backdrop-blur-sm"
+                      ? "max-w-[90%] md:max-w-[85%] bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-tr-sm ml-auto shadow-sm" 
+                      : "w-full bg-white dark:bg-zinc-900/80 text-zinc-800 dark:text-zinc-200 border border-zinc-100 dark:border-white/5 shadow-lg rounded-tl-sm backdrop-blur-sm"
                   }`}>
                     
                     {msg.role === "assistant" && (
@@ -120,15 +165,9 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
                     
                     <div className={`prose dark:prose-invert max-w-none text-[15px] leading-relaxed tracking-wide ${msg.role === "user" ? "whitespace-pre-wrap font-medium" : ""}`}>
                       {msg.role === "assistant" ? (
-                        <ReactMarkdown components={{
-                          code({node, inline, className, children, ...props}: any) {
-                            return !inline ? (
-                              <div className="bg-zinc-50 dark:bg-[#050505] rounded-2xl p-5 overflow-x-auto my-5 border border-zinc-200 dark:border-white/5 font-mono text-sm shadow-inner">
-                                <code {...props} className={className}>{children}</code>
-                              </div>
-                            ) : <code {...props} className="bg-zinc-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md text-cyan-600 dark:text-cyan-400 font-semibold text-[13px]">{children}</code>
-                          }
-                        }}>{msg.content}</ReactMarkdown>
+                        <ReactMarkdown components={{ code: CodeBlock }}>
+                          {msg.content}
+                        </ReactMarkdown>
                       ) : msg.content}
                     </div>
 
@@ -136,8 +175,8 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
                       <div className="flex items-center gap-3 mt-6 pt-4 border-t border-zinc-100 dark:border-white/5 text-zinc-400">
                         <button onClick={handleLike} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-green-500 transition-all active:scale-90" title="Bagus"><ThumbsUp className="w-4 h-4" /></button>
                         <button onClick={handleDislike} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-red-500 transition-all active:scale-90" title="Buruk"><ThumbsDown className="w-4 h-4" /></button>
-                        <button onClick={() => handleCopy(msg.content)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-cyan-500 transition-all active:scale-90 flex items-center gap-2 ml-auto" title="Salin">
-                          <Copy className="w-4 h-4" /> <span className="text-[10px] uppercase font-bold tracking-wider">Copy</span>
+                        <button onClick={() => handleCopyText(msg.content)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-cyan-500 transition-all active:scale-90 flex items-center gap-2 ml-auto" title="Salin Teks Jawaban">
+                          <Copy className="w-4 h-4" /> <span className="text-[10px] uppercase font-bold tracking-wider">Copy Text</span>
                         </button>
                       </div>
                     )}
@@ -160,21 +199,11 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
         )}
       </main>
 
-      {/* FLOATING INPUT BOX: Desain mengambang mewah */}
       <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-zinc-50 via-zinc-50/80 dark:from-[#09090b] dark:via-[#09090b]/80 to-transparent pt-20 pb-6 px-4 md:px-8 z-20 pointer-events-none">
         <div className="max-w-4xl mx-auto pointer-events-auto">
           <div className="relative flex items-end gap-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-white/10 p-2.5 rounded-[2rem] shadow-2xl focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all duration-300 group">
-            
-            <button onClick={handleUploadClick} className="p-3.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-2xl transition-all active:scale-95">
-              <ImageIcon className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={handleMicClick} 
-              className={`p-3.5 rounded-2xl transition-all active:scale-95 ${isListening ? "text-red-500 bg-red-50 dark:bg-red-500/10 animate-pulse shadow-inner" : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
-            >
-              <Mic className="w-5 h-5" />
-            </button>
-
+            <button onClick={handleUploadClick} className="p-3.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-2xl transition-all active:scale-95"><ImageIcon className="w-5 h-5" /></button>
+            <button onClick={handleMicClick} className={`p-3.5 rounded-2xl transition-all active:scale-95 ${isListening ? "text-red-500 bg-red-50 dark:bg-red-500/10 animate-pulse shadow-inner" : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}><Mic className="w-5 h-5" /></button>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -183,18 +212,9 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
               className="flex-1 max-h-40 min-h-[44px] bg-transparent text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none outline-none py-3.5 text-[15px] custom-scrollbar font-medium"
               rows={1}
             />
-
-            <button 
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              className="p-3.5 mb-0.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl transition-all hover:shadow-lg active:scale-90 ml-1"
-            >
-              <Send className="w-5 h-5" />
-            </button>
+            <button onClick={handleSend} disabled={!input.trim() || isLoading} className="p-3.5 mb-0.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl transition-all hover:shadow-lg active:scale-90 ml-1"><Send className="w-5 h-5" /></button>
           </div>
-          <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-500 mt-4 tracking-wide font-medium">
-            AI dapat melakukan kesalahan. Harap verifikasi informasi penting.
-          </p>
+          <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-500 mt-4 tracking-wide font-medium">AI dapat melakukan kesalahan. Harap verifikasi informasi penting.</p>
         </div>
       </div>
     </div>
