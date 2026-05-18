@@ -131,7 +131,7 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
               </h1>
             </motion.div>
             <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }} className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base tracking-widest text-center mt-4 font-medium uppercase">
-              System Online • Ready
+              System Online • Apa Yang Bisa Saya Bantu Hari Ini?
             </motion.p>
           </div>
         ) : (
@@ -214,7 +214,7 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
             />
             <button onClick={handleSend} disabled={!input.trim() || isLoading} className="p-3.5 mb-0.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 disabled:opacity-40 disabled:cursor-not-allowed rounded-2xl transition-all hover:shadow-lg active:scale-90 ml-1"><Send className="w-5 h-5" /></button>
           </div>
-          <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-500 mt-4 tracking-wide font-medium">AI dapat melakukan kesalahan. Harap verifikasi informasi penting.</p>
+          <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-500 mt-4 tracking-wide font-medium">Azeerh AI dapat melakukan kesalahan. Harap verifikasi informasi penting.</p>
         </div>
       </div>
     </div>
