@@ -55,7 +55,7 @@ export default function Sidebar({
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/20">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            COMMAND CENTER
+            RIWAYAT PESAN
           </div>
           <button onClick={() => setIsOpen(false)} className="md:hidden p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all active:scale-90">
             <X className="w-4 h-4" />
