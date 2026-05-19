@@ -4,7 +4,7 @@ import { Menu, Send, Image as ImageIcon, Mic, Moon, Sun, ThumbsUp, ThumbsDown, C
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 
-// Komponen Kode
+// KOMPONEN RENDER KODE (Live Preview HTML & Copy Code)
 const CodeBlock = ({ inline, className, children, ...props }: any) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -45,6 +45,7 @@ const CodeBlock = ({ inline, className, children, ...props }: any) => {
   );
 };
 
+// KOMPONEN UTAMA
 interface ChatAreaProps {
   currentSessionTitle?: string;
   messages: { role: string; content: string; imageUrl?: string }[];
@@ -74,7 +75,6 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
     }
   };
 
-  // FITUR VISION: Mengubah file gambar menjadi Base64
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -87,7 +87,6 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
 
   const handleCopyText = (text: string) => { navigator.clipboard.writeText(text); toast.success("Teks disalin!"); };
   
-  // PARSER CUSTOM UNTUK MENAMPILKAN VIDEO DARI FAL.AI
   const renderMessageContent = (content: string) => {
     const videoRegex = /\[VIDEO_GENERATED\]\((.*?)\)/g;
     if (videoRegex.test(content)) {
@@ -100,6 +99,22 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
       });
     }
     return <ReactMarkdown components={{ code: CodeBlock }}>{content}</ReactMarkdown>;
+  };
+
+  // FITUR MIKROFON DIKEMBALIKAN
+  const handleMicClick = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return toast.error("Browser Anda tidak mendukung fitur mikrofon.");
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'id-ID';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => { setIsListening(true); toast.info("Mendengarkan suara..."); };
+    recognition.onresult = (event: any) => setInput((prev) => prev + (prev ? " " : "") + event.results[0][0].transcript);
+    recognition.onerror = () => { toast.error("Gagal mendeteksi suara."); setIsListening(false); };
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
   };
 
   return (
@@ -128,7 +143,7 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
                   <div className={`rounded-3xl px-6 py-5 shadow-sm transition-colors ${msg.role === "user" ? "max-w-[90%] md:max-w-[85%] bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-tr-sm ml-auto" : "w-full bg-white dark:bg-zinc-900/80 text-zinc-800 dark:text-zinc-200 border border-zinc-100 dark:border-white/5 shadow-lg rounded-tl-sm backdrop-blur-sm"}`}>
                     {msg.role === "assistant" && <div className="text-[11px] text-cyan-600 dark:text-cyan-400 font-bold mb-3 tracking-widest uppercase flex items-center gap-2"><span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span></span> AZEERH</div>}
                     
-                    {msg.imageUrl && <img src={msg.imageUrl} alt="Uploaded" className="w-64 rounded-xl mb-4 object-cover shadow-md border border-white/10" />}
+                    {msg.imageUrl && <img src={msg.imageUrl} alt="Uploaded" className="w-64 rounded-xl mb-4 object-cover shadow-md border border-zinc-200 dark:border-white/10" />}
 
                     <div className={`prose dark:prose-invert max-w-none text-[15px] leading-relaxed tracking-wide ${msg.role === "user" ? "whitespace-pre-wrap font-medium" : ""}`}>
                       {msg.role === "assistant" ? renderMessageContent(msg.content) : msg.content}
@@ -158,7 +173,6 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
       <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-zinc-50 via-zinc-50/80 dark:from-[#09090b] dark:via-[#09090b]/80 to-transparent pt-24 pb-6 px-4 md:px-8 z-20 pointer-events-none">
         <div className="max-w-4xl mx-auto pointer-events-auto flex flex-col gap-2">
           
-          {/* PREVIEW GAMBAR SEBELUM KIRIM */}
           {attachmentPreview && (
             <div className="relative w-24 h-24 ml-4">
               <img src={attachmentPreview} alt="Preview" className="w-full h-full object-cover rounded-2xl shadow-xl border-2 border-cyan-500" />
@@ -168,12 +182,17 @@ export default function ChatArea({ currentSessionTitle, messages, sendMessage, i
 
           <div className="relative flex items-end gap-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl border border-zinc-200/50 dark:border-white/10 p-2.5 rounded-[2rem] shadow-2xl focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all duration-300">
             <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+            
             <button onClick={() => fileInputRef.current?.click()} className="p-3.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-2xl transition-all"><ImageIcon className="w-5 h-5" /></button>
+            
+            {/* TOMBOL MIC ADA DI SINI */}
+            <button onClick={handleMicClick} className={`p-3.5 rounded-2xl transition-all active:scale-95 ${isListening ? "text-red-500 bg-red-50 dark:bg-red-500/10 animate-pulse shadow-inner" : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}><Mic className="w-5 h-5" /></button>
+            
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-              placeholder={attachmentPreview ? "Beri deskripsi untuk gambar ini..." : "Ketik pesan, kirim gambar, atau buat video..."}
+              placeholder={isListening ? "Mendengarkan..." : "Ketik pesan, kirim gambar..."}
               className="flex-1 max-h-40 min-h-[44px] bg-transparent text-zinc-900 dark:text-white placeholder-zinc-400 resize-none outline-none py-3.5 text-[15px] custom-scrollbar font-medium"
               rows={1}
             />
