@@ -4,7 +4,7 @@ export async function POST(req: Request) {
   try {
     const { messages, model } = await req.json();
     
-    // MENGAMBIL KUNCI RAHASIA DARI VERCEL ENVIRONMENT (SANGAT AMAN)
+    // MENGAMBIL KUNCI RAHASIA DARI VERCEL ENVIRONMENT
     const apiKey = process.env.GROQ_API_KEY;
     const falKey = process.env.FAL_API_KEY; 
 
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "API Key Groq tidak ditemukan di Environment Vercel." }, { status: 500 });
     }
 
-    // MEMORY & VISION FORMATTING: Menyesuaikan pesan ke format multimodal Groq
+    // MEMORY & VISION FORMATTING
     const formattedMessages = messages.map((msg: any) => {
       if (msg.role === "user" && msg.imageUrl) {
         return {
@@ -54,12 +54,13 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
       }
     ];
 
-    // INITIAL CALL KE GROQ
+    // INITIAL CALL KE GROQ (MENGGUNAKAN MODEL VISION RESMI GROQ)
     let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: model || "llama-3.3-70b-versatile", // Pastikan model support tool calling
+        // UPDATE: Model resmi Groq untuk Vision & Tool Calling
+        model: model || "llama-3.2-90b-vision-preview", 
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages],
         temperature: 0.6,
         tools: tools,
@@ -87,7 +88,7 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
         if (args.type === "image") {
           const falRes = await fetch("https://fal.run/fal-ai/flux-pro", {
             method: "POST",
-            headers: { "Authorization": `Key ${falKey}`, "Content-Type": "application/json" }, // MENGGUNAKAN KEY DARI ENV
+            headers: { "Authorization": `Key ${falKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({ prompt: args.prompt, image_size: "landscape_16_9" })
           });
           const falData = await falRes.json();
@@ -95,7 +96,7 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
         } else if (args.type === "video") {
           const falRes = await fetch("https://fal.run/fal-ai/minimax/video-01", {
             method: "POST",
-            headers: { "Authorization": `Key ${falKey}`, "Content-Type": "application/json" }, // MENGGUNAKAN KEY DARI ENV
+            headers: { "Authorization": `Key ${falKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({ prompt: args.prompt })
           });
           const falData = await falRes.json();
