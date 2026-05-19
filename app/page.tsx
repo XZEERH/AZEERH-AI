@@ -11,8 +11,10 @@ export default function Home() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  // UPDATE: Model default menjadi Llama-4-Scout
-  const [currentModel, setCurrentModel] = useState("meta-llama/llama-4-scout");
+  
+  // 🔥 UPDATE: Menggunakan ONE-MODEL-FOR-ALL (Teks, Koding, Upload Gambar & Tool)
+  const [currentModel, setCurrentModel] = useState("llama-3.2-90b-vision-preview");
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
 
@@ -62,7 +64,6 @@ export default function Home() {
     setSessions(sessions.map(s => s.id === id ? { ...s, title: newTitle } : s));
   };
 
-  // UPDATE: sendMessage sekarang menerima parameter attachment berupa Base64 Image
   const sendMessage = async (input: string, attachmentUrl?: string) => {
     if (!input.trim() && !attachmentUrl) return;
 
@@ -71,7 +72,7 @@ export default function Home() {
 
     if (!targetSessionId) {
       targetSessionId = Date.now().toString();
-      const newTitle = input.length > 25 ? input.substring(0, 25) + "..." : (input || "Analisis Gambar");
+      const newTitle = input.length > 25 ? input.substring(0, 25) + "..." : (input || "Analisis Media");
       const newSession: ChatSession = { id: targetSessionId, title: newTitle, messages: [], updatedAt: Date.now() };
       currentSessions = [newSession, ...currentSessions];
       setCurrentSessionId(targetSessionId);
@@ -96,7 +97,7 @@ export default function Home() {
 
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || "Gagal menyambung ke server API.");
+      if (!res.ok) throw new Error(data.error || "Gagal menyambung ke server API Groq.");
       if (!data.choices || !data.choices[0]) throw new Error("Respon API tidak valid");
 
       const reply = data.choices[0].message.content;
@@ -133,8 +134,6 @@ export default function Home() {
         createNewChat={createNewChat}
         deleteSession={deleteSession}
         renameSession={renameSession}
-        currentModel={currentModel}
-        setCurrentModel={setCurrentModel}
         clearAllChats={clearAllChats}
       />
       <ChatArea 
