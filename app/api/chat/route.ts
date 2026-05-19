@@ -12,11 +12,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "API Key Groq tidak ditemukan di Environment Vercel." }, { status: 500 });
     }
 
-    // MEMORY & VISION FORMATTING
+    // MEMORY & VISION FORMATTING: Menyesuaikan standar ketat Vision Groq
     const formattedMessages = messages.map((msg: any) => {
-      if (msg.role === "user" && msg.imageUrl) {
+      if (msg.imageUrl) {
         return {
-          role: "user",
+          role: msg.role,
           content: [
             { type: "text", text: msg.content || "Tolong analisis gambar ini secara detail." },
             { type: "image_url", image_url: { url: msg.imageUrl } }
@@ -26,14 +26,18 @@ export async function POST(req: Request) {
       return { role: msg.role, content: msg.content };
     });
 
-    const systemPrompt = `Kamu adalah Azeerh AI, asisten AI generasi terbaru kelas premium buatan Razeerh.
-Karakteristikmu: Natural, cerdas, santai namun profesional, reasoning step-by-step, dan anti-halusinasi. Jika tidak tahu, jujurlah.
-Keahlianmu:
-1. Tool-Awareness: Kamu bisa memanggil tool untuk meng-generate gambar dan video. JIKA PENGGUNA MEMINTA DIBUATKAN GAMBAR ATAU VIDEO, gunakan fungsi/tool yang tersedia. Buat prompt bahasa inggris yang sangat detail, cinematic, perhatikan lighting, composition, atmosphere, dan camera angle.
-2. Vision: Kamu bisa menganalisis gambar yang diunggah pengguna dengan sangat tajam dan akurat.
-3. Code & Web Expert: Kamu menulis kode TypeScript, React, Next.js, dan Tailwind CSS berskala Production-ready. Struktur UI yang kamu buat selalu premium, clean, modern, smooth, dan sangat responsif.
-4. Realtime Awareness: Jika pertanyaan butuh konteks realtime (harga kripto, berita hari ini), berikan analisis logis berdasarkan data terkini yang kamu miliki, dan tekankan bahwa kamu memprosesnya dengan penalaran cerdas.
-Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan kaku.`;
+    // 🔥 UPDATE SYSTEM PROMPT: Full-Stack Expert, Cinematic English Prompt, Indonesian Chat & Up-to-date Info
+    const systemPrompt = `Kamu adalah Azeerh AI, asisten AI Full-Stack generasi terbaru kelas premium buatan Razeerh.
+Karakteristikmu: Natural, cerdas, santai namun profesional, reasoning step-by-step, dan selalu up-to-date.
+Jika disapa, jawablah dengan singkat, ramah, dan natural (misal: "Halo! Ada yang bisa saya bantu hari ini?"). JANGAN menyombongkan keahlian kecuali ditanya secara spesifik.
+
+Keahlian Utamamu:
+1. Ahli Koding Full-Stack: Kamu sangat ahli dalam pengembangan Frontend dan Backend (React, Next.js, TypeScript, Tailwind, Node.js, Database, dll). Selalu berikan arsitektur kode yang clean, modern, UI/UX premium, dan production-ready.
+2. Tool-Awareness (Media Generator): JIKA pengguna meminta dibuatkan GAMBAR atau VIDEO, gunakan tool yang tersedia. WAJIB buat parameter prompt visual dalam BAHASA INGGRIS yang sangat detail, cinematic, pencahayaan epik, dan profesional. NAMUN, pastikan penjelasan dan percakapanmu dengan pengguna tetap menggunakan BAHASA INDONESIA yang elegan.
+3. Informasi Terkini & Realtime: Kamu dituntut untuk selalu memberikan informasi yang paling mutakhir, lengkap, dan tidak ketinggalan zaman. Untuk hal terkait teknologi, tren, harga, atau berita terkini, berikan wawasan paling tajam dan akurat berdasarkan data terbaru. Jika tidak tahu atau data di luar jangkauan ingatanmu, jujurlah.
+4. Vision: Mampu menganalisis gambar dengan tingkat akurasi tinggi.
+
+Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya tanpa bertele-tele.`;
 
     // TOOL DEFINITIONS UNTUK FAL.AI
     const tools = [
@@ -46,7 +50,7 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
             type: "object",
             properties: {
               type: { type: "string", enum: ["image", "video"], description: "Pilih 'image' jika diminta gambar, 'video' jika diminta video." },
-              prompt: { type: "string", description: "Prompt visual bahasa inggris yang sangat cinematic, panjang, detail, lighting, ambiance." }
+              prompt: { type: "string", description: "Prompt visual dalam BAHASA INGGRIS yang sangat cinematic, detail, lighting, ambiance, dan resolusi tinggi." }
             },
             required: ["type", "prompt"]
           }
@@ -54,13 +58,11 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
       }
     ];
 
-    // INITIAL CALL KE GROQ (MENGGUNAKAN MODEL VISION RESMI GROQ)
     let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        // UPDATE: Model resmi Groq untuk Vision & Tool Calling
-        model: model || "llama-3.2-90b-vision-preview", 
+        model: "llama-3.2-90b-vision-preview", // ONE MODEL FOR ALL
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages],
         temperature: 0.6,
         tools: tools,
@@ -73,15 +75,12 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
 
     const responseMessage = data.choices[0].message;
 
-    // JIKA AI MEMUTUSKAN UNTUK MENGGUNAKAN TOOL (MEMBUAT GAMBAR/VIDEO)
+    // PROSES RENDERING MEDIA
     if (responseMessage.tool_calls) {
-      if (!falKey) {
-        return NextResponse.json({ choices: [{ message: { content: "⚠️ **SYSTEM ERROR:** Gagal membuat media. `FAL_API_KEY` belum dipasang di Environment Vercel." } }] });
-      }
+      if (!falKey) return NextResponse.json({ choices: [{ message: { content: "⚠️ Gagal: `FAL_API_KEY` belum dipasang di Environment Vercel." } }] });
 
       const toolCall = responseMessage.tool_calls[0];
       const args = JSON.parse(toolCall.function.arguments);
-      
       let mediaOutput = "";
 
       try {
@@ -91,7 +90,10 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
             headers: { "Authorization": `Key ${falKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({ prompt: args.prompt, image_size: "landscape_16_9" })
           });
+          
           const falData = await falRes.json();
+          if (!falRes.ok) throw new Error(falData.detail || falData.error || "Gagal dari server Fal.ai");
+          
           mediaOutput = `Berikut adalah gambar yang kamu minta:\n\n![Generated Image](${falData.images[0].url})`;
         } else if (args.type === "video") {
           const falRes = await fetch("https://fal.run/fal-ai/minimax/video-01", {
@@ -99,23 +101,26 @@ Gunakan format Markdown untuk menjawab. Jawablah langsung pada intinya, jangan k
             headers: { "Authorization": `Key ${falKey}`, "Content-Type": "application/json" },
             body: JSON.stringify({ prompt: args.prompt })
           });
+          
           const falData = await falRes.json();
+          if (!falRes.ok) throw new Error(falData.detail || falData.error || "Gagal dari server Fal.ai");
+          
           mediaOutput = `Berikut adalah video sinematik yang kamu minta:\n\n[VIDEO_GENERATED](${falData.video.url})`;
         }
 
-        // PANGGIL GROQ KEDUA KALINYA UNTUK MENYAMPAIKAN HASIL KE USER
+        // PANGGIL GROQ KEDUA KALINYA UNTUK MENYAMPAIKAN HASIL KE USER (Dalam Bahasa Indonesia)
         formattedMessages.push(responseMessage);
         formattedMessages.push({ role: "tool", tool_call_id: toolCall.id, name: toolCall.function.name, content: mediaOutput });
 
         const secondResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ model: model, messages: [{ role: "system", content: systemPrompt }, ...formattedMessages], temperature: 0.6 }),
+          body: JSON.stringify({ model: "llama-3.2-90b-vision-preview", messages: [{ role: "system", content: systemPrompt }, ...formattedMessages], temperature: 0.6 }),
         });
         
         data = await secondResponse.json();
-      } catch (err) {
-        return NextResponse.json({ choices: [{ message: { content: "Maaf, terjadi kesalahan saat menghubungi server Rendering Studio (Fal.ai)." } }] });
+      } catch (err: any) {
+        return NextResponse.json({ choices: [{ message: { content: `⚠️ **Gagal Membuat Media:** ${err.message}` } }] });
       }
     }
 
