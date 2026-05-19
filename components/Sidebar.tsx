@@ -55,7 +55,7 @@ export default function Sidebar({
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/20">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            RIWAYAT CHAT
+            COMMAND CENTER
           </div>
           <button onClick={() => setIsOpen(false)} className="md:hidden p-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all active:scale-90">
             <X className="w-4 h-4" />
@@ -141,8 +141,9 @@ export default function Sidebar({
                 onChange={(e) => setCurrentModel(e.target.value)}
                 className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 text-xs font-medium text-zinc-800 dark:text-zinc-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all cursor-pointer appearance-none shadow-sm hover:border-cyan-500/30"
               >
-                <option value="meta-llama/llama-4-scout">Llama 4 Scout (Vision & Tool)</option>
-                <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Max Power)</option>
+                {/* UPDATE NAMA MODEL GROQ YANG BENAR DAN SUPPORT VISION */}
+                <option value="llama-3.2-90b-vision-preview">Llama 3.2 90B (Vision & Image Gen)</option>
+                <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Max Text Power)</option>
               </select>
             </div>
           </div>
@@ -151,7 +152,7 @@ export default function Sidebar({
             onClick={clearAllChats}
             className="w-full flex items-center justify-center gap-2 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-500 py-3 rounded-xl text-xs font-bold tracking-wide transition-all active:scale-95"
           >
-            <Trash2 className="w-4 h-4" /> DELETE MEMORY
+            <Trash2 className="w-4 h-4" /> PURGE MEMORY
           </button>
         </div>
       </div>
