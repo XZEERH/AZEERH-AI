@@ -4,18 +4,18 @@ import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import ChatArea from "@/components/ChatArea";
 
-export type Message = { role: "user" | "assistant"; content: string };
+export type Message = { role: "user" | "assistant"; content: string; imageUrl?: string };
 export type ChatSession = { id: string; title: string; messages: Message[]; updatedAt: number };
 
 export default function Home() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentModel, setCurrentModel] = useState("llama-3.3-70b-versatile");
+  // UPDATE: Model default menjadi Llama-4-Scout
+  const [currentModel, setCurrentModel] = useState("meta-llama/llama-4-scout");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
 
-  // LOAD SESSIONS & TEMA DARI PENYIMPANAN
   useEffect(() => {
     const savedSessions = localStorage.getItem("azeerh_sessions");
     const savedTheme = localStorage.getItem("azeerh_theme");
@@ -23,7 +23,6 @@ export default function Home() {
     if (savedSessions) {
       const parsed = JSON.parse(savedSessions);
       setSessions(parsed);
-      // Opsional: Buka chat terakhir jika ada
       if (parsed.length > 0) setCurrentSessionId(parsed[0].id);
     }
     
@@ -36,7 +35,6 @@ export default function Home() {
     }
   }, []);
 
-  // SIMPAN SESSIONS OTOMATIS
   useEffect(() => {
     localStorage.setItem("azeerh_sessions", JSON.stringify(sessions));
   }, [sessions]);
@@ -64,30 +62,28 @@ export default function Home() {
     setSessions(sessions.map(s => s.id === id ? { ...s, title: newTitle } : s));
   };
 
-  const sendMessage = async (input: string) => {
-    if (!input.trim()) return;
+  // UPDATE: sendMessage sekarang menerima parameter attachment berupa Base64 Image
+  const sendMessage = async (input: string, attachmentUrl?: string) => {
+    if (!input.trim() && !attachmentUrl) return;
 
     let targetSessionId = currentSessionId;
     let currentSessions = [...sessions];
 
-    // JIKA CHAT BARU, BUAT SESI BARU
     if (!targetSessionId) {
       targetSessionId = Date.now().toString();
-      const newTitle = input.length > 25 ? input.substring(0, 25) + "..." : input;
+      const newTitle = input.length > 25 ? input.substring(0, 25) + "..." : (input || "Analisis Gambar");
       const newSession: ChatSession = { id: targetSessionId, title: newTitle, messages: [], updatedAt: Date.now() };
       currentSessions = [newSession, ...currentSessions];
       setCurrentSessionId(targetSessionId);
     }
 
-    // TAMBAH PESAN USER KE SESI YANG TEPAT
-    const newMessage = { role: "user" as const, content: input };
+    const newMessage: Message = { role: "user", content: input, imageUrl: attachmentUrl };
     currentSessions = currentSessions.map(s => 
       s.id === targetSessionId ? { ...s, messages: [...s.messages, newMessage], updatedAt: Date.now() } : s
     );
     setSessions(currentSessions);
     setIsLoading(true);
 
-    // MENGAMBIL RIWAYAT CHAT DARI SESI TERSEBUT UNTUK DIKIRIM KE API
     const activeSession = currentSessions.find(s => s.id === targetSessionId);
     const messagesToSend = activeSession ? activeSession.messages : [newMessage];
 
@@ -100,12 +96,11 @@ export default function Home() {
 
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || "Gagal menyambung ke server API Groq.");
+      if (!res.ok) throw new Error(data.error || "Gagal menyambung ke server API.");
       if (!data.choices || !data.choices[0]) throw new Error("Respon API tidak valid");
 
       const reply = data.choices[0].message.content;
 
-      // TAMBAH PESAN AI KE SESI YANG TEPAT
       setSessions(prev => prev.map(s => 
         s.id === targetSessionId ? { ...s, messages: [...s.messages, { role: "assistant", content: reply }], updatedAt: Date.now() } : s
       ));
@@ -128,7 +123,7 @@ export default function Home() {
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
   return (
-    <main className="flex h-[100dvh] w-full overflow-hidden bg-gray-50 dark:bg-zinc-950 transition-colors duration-300">
+    <main className="flex h-[100dvh] w-full overflow-hidden bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
       <Sidebar 
         isOpen={isSidebarOpen} 
         setIsOpen={setIsSidebarOpen}
